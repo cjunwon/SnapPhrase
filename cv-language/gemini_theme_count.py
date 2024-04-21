@@ -2,11 +2,9 @@ def generate_theme_and_count():
         from pathlib import Path
         import hashlib
         import google.generativeai as genai
-        from dotenv import load_dotenv
         import os
         import random
 
-        load_dotenv()
         GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
         genai.configure(api_key=GEMINI_API_KEY)
