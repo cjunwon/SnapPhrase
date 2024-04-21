@@ -12,46 +12,15 @@ import reflex as rx
 
 from .react_oauth_google import GoogleOAuthProvider, GoogleLogin
 
+from db_model import *
+from .states.baseState import State
+
+from sqlmodel import Field, SQLModel, create_engine 
+
 # CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
-
-class State(rx.State):
-    id_token_json: str = rx.LocalStorage()
-
-    def on_success(self, id_token: dict):
-        self.id_token_json = json.dumps(id_token)
-
-    @rx.cached_var
-    def tokeninfo(self) -> dict[str, str]:
-        try:
-            return verify_oauth2_token(
-                json.loads(self.id_token_json)["credential"],
-                requests.Request(),
-                CLIENT_ID,
-            )
-        except Exception as exc:
-            if self.id_token_json:
-                print(f"Error verifying token: {exc}")
-        return {}
-
-    def logout(self):
-        self.id_token_json = ""
-
-    @rx.var
-    def token_is_valid(self) -> bool:
-        try:
-            return bool(
-                self.tokeninfo
-                and int(self.tokeninfo.get("exp", 0)) > time.time()
-            )
-        except Exception:
-            return False
-
-    @rx.cached_var
-    def protected_content(self) -> str:
-        if self.token_is_valid:
-            return f"This content can only be viewed by a logged in User. Nice to see you {self.tokeninfo['name']}"
-        return "Not logged in."
+engine = create_engine("sqlite:///reflex.db", echo=True)
+SQLModel.metadata.create_all(engine)
 
 
 def user_info(tokeninfo: dict) -> rx.Component:
@@ -98,9 +67,11 @@ def index():
     )
 
 
+
 @rx.page(route="/protected")
 @require_google_login
 def protected() -> rx.Component:
+
     return rx.vstack(
         user_info(State.tokeninfo),
         rx.text(State.protected_content),
