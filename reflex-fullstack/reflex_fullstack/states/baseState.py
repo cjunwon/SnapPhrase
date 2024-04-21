@@ -4,7 +4,7 @@ import json
 import os
 import time
 import reflex as rx
-from db_model import User
+from db_model import User, Game, League
 CLIENT_ID = '453147289562-jkgjib093hs0c0r61n6nkgbbp47kgr2m.apps.googleusercontent.com'
 from google.auth.transport import requests
 from google.oauth2.id_token import verify_oauth2_token
@@ -126,6 +126,13 @@ class State(rx.State):
     def selected_game(self):
         if self.form_data.keys() == {"Languages"}:
             print("Hosted game with language: ", self.form_data["Languages"])
+            # with rx.session() as session:
+            #     session.add(
+            #         League(
+            #             username=self.username, email=self.email
+            #         )
+            #     )
+            #     session.commit()
         elif self.form_data.keys() == {"PLeague Code"}:
             print("Joined game with code: ", self.form_data["PLeague Code"])
         return None

@@ -22,6 +22,7 @@ class User(rx.Model, table=True):
     photo_url: Optional[str] = None
     score: Optional[int] = 0
     in_lobby: Optional[bool] = False   # If user is in a game already
+    submitted: Optional[bool] = False   # If user has submitted a game
     # league_id: Optional[int] = Field(default=None, primary_key=True)   # If user is in a league already
     league_id: Optional[int] = None   # If user is in a league already
 
@@ -31,7 +32,6 @@ class Game(rx.Model, table=True):
     # game_id: Optional[int] = Field(primary_key=True)
     language: str  # Language of the game
     theme: str  # Current theme of the game
-    submit_num: str # How many images are required
     game_state: Optional[str] = 0   # Store state of the game
     league_id: Optional[str] = None  # which league this game in
 
@@ -41,6 +41,7 @@ class League(rx.Model, table=True):
     # users: list[str]    # List of users in the league
     # game_session: Game
     league_name: str
+    current_game_id: str
     # league_id: Optional[int] = Field(primary_key=True)
     # leaderboard: list[str]  # List of users in order of score
     rounds: Optional[int] = 0
