@@ -38,7 +38,7 @@ def generate_theme_and_count():
             },
         ]
 
-        theme_count_model = genai.GenerativeModel(model_name="gemini-1.0-pro",
+        theme_count_model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest",
                                                                     generation_config=generation_config,
                                                                     safety_settings=safety_settings)
 
