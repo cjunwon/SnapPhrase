@@ -99,13 +99,13 @@ def protected() -> rx.Component:
                     placeholder="Enter your unique PLeague code",
                     name="PLeague Code",
                 )),
+                rx.button("Confirm", type="submit"),
                 rx.link(
-                    rx.button("Submit", type="submit"),
-                href="/protected/upload")
+                    rx.button("Submit", on_click=State.selected_game()), href="/protected/upload"),
             ),
             on_submit=State.handle_submit,
             reset_on_submit=True,
-        ),
+            ),
         rx.divider(),
         rx.heading("Results"),
         rx.text(State.form_data.to_string()),

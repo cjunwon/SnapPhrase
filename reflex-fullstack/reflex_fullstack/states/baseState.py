@@ -93,13 +93,13 @@ class State(rx.State):
             # convert to webp during serialization for smaller size
             self.last_screenshot.format = "WEBP"  # type: ignore
         with rx.session() as session:
-            self.last_screenshot.save(f"assets/{self.tokeninfo["email"]}.jpg")
+            self.last_screenshot.save(f"assets/{self.tokeninfo['email']}.jpg")
             user = session.exec(
                 User.select().where(
                     (User.email == self.tokeninfo['email'])
                 )
             ).first()
-            user.photo_url = f"assets/{self.tokeninfo["email"]}.jpg"
+            user.photo_url = f"assets/{self.tokeninfo['email']}.jpg"
             session.add(user)
             session.commit()
 
@@ -121,6 +121,13 @@ class State(rx.State):
     def search_game(self):
         self.game_settings = False
         self.find_game = True
+        return None
+    
+    def selected_game(self):
+        if self.form_data.keys() == {"Languages"}:
+            print("Hosted game with language: ", self.form_data["Languages"])
+        elif self.form_data.keys() == {"PLeague Code"}:
+            print("Joined game with code: ", self.form_data["PLeague Code"])
         return None
 
     
