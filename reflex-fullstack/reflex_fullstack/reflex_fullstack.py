@@ -13,7 +13,10 @@ import reflex as rx
 from .react_oauth_google import GoogleOAuthProvider, GoogleLogin
 
 from db_model import *
-from .states.baseState import State, FormState
+from .states.baseState import State
+# from .states.uploadState import UploadState
+
+import reflex_webcam as webcam
 
 from sqlmodel import Field, Session, SQLModel, create_engine 
 
@@ -21,6 +24,9 @@ from sqlmodel import Field, Session, SQLModel, create_engine
 
 engine = create_engine("sqlite:///reflex.db", echo=True)
 SQLModel.metadata.create_all(engine)
+
+# Identifies a particular webcam component in the DOM
+WEBCAM_REF = "webcam"
 
 def user_info(tokeninfo: dict) -> rx.Component:
     return rx.hstack(
@@ -78,8 +84,8 @@ def protected() -> rx.Component:
         rx.form(
             rx.vstack(
                 # Host new game form
-                rx.button("Host A New Game", on_click=FormState.new_game()),
-                rx.cond(FormState.game_settings, 
+                rx.button("Host A New Game", on_click=State.new_game()),
+                rx.cond(State.game_settings, 
                     rx.select(
                         ["Corey", "Spen", "Fhranz", "Eadale", "Chaainis"],
                         placeholder="Choose your language",
@@ -87,22 +93,74 @@ def protected() -> rx.Component:
                     )
                 ),
                 # Join existing game form
-                rx.button("Join A Game", on_click=FormState.search_game()),
-                rx.cond(FormState.find_game, rx.input(
+                rx.button("Join A Game", on_click=State.search_game()),
+                rx.cond(State.find_game, rx.input(
                     placeholder="Enter your unique PLeague code",
                     name="PLeague Code",
                 )),
                 rx.button("Submit", type="submit"),
                 rx.button("Generate Theme and Count", on_click=FormState.gen_theme_count()),
+                rx.link(
+                    rx.button("Submit", type="submit"),
+                href="/protected/upload")
             ),
-            on_submit=FormState.handle_submit,
+            on_submit=State.handle_submit,
             reset_on_submit=True,
         ),
         rx.divider(),
         rx.heading("Results"),
-        rx.text(FormState.form_data.to_string()),
+        rx.text(State.form_data.to_string()),
     )
 
 
+# Camera Upload widget
+
+def last_screenshot_widget() -> rx.Component:
+    """Widget for displaying the last screenshot and timestamp."""
+    return rx.box(
+        rx.cond(
+            State.last_screenshot,
+            rx.fragment(
+                rx.image(src=State.last_screenshot),
+                rx.text(State.last_screenshot_timestamp),
+            ),
+            rx.center(
+                rx.text("Click image to capture.", size="4"),
+                ),
+        ),
+        height="270px",
+    )
+
+def webcam_upload_component(ref: str) -> rx.Component:
+    """Component for displaying webcam preview and uploading screenshots.
+    Args:
+        ref: The ref of the webcam component.
+    Returns:
+        A reflex component.
+    """
+    return rx.vstack(
+        webcam.webcam(
+            id=ref,
+            on_click=webcam.upload_screenshot(
+                ref=ref,
+                handler=State.handle_screenshot,  # type: ignore
+            ),
+        ),
+        last_screenshot_widget(),
+        width="320px",
+        align="center",
+    )
+
+@rx.page(route="/protected/upload")
+@require_google_login
+def upload() -> rx.Component:
+    return rx.fragment(
+        rx.center(
+            webcam_upload_component(WEBCAM_REF),
+            padding_top="3em",
+        ),
+    )
+
 app = rx.App()
 app.add_page(index)
+app.add_page(upload, route="/protected/upload")

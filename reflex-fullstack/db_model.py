@@ -33,7 +33,7 @@ class Game(rx.Model, table=True):
     theme: str  # Current theme of the game
     submit_num: str # How many images are required
     game_state: Optional[str] = 0   # Store state of the game
-    league_id: Optional[int] = Field(primary_key=True)   # which league this game in
+    league_id: Optional[str] = None  # which league this game in
 
 class League(rx.Model, table=True):
     """A table of Users."""

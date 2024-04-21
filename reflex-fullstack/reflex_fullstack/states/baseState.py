@@ -12,6 +12,10 @@ from sqlmodel import Field, SQLModel, create_engine
 
 from cv_language.gemini_theme_count import generate_theme_and_count
 
+from urllib.request import urlopen
+from PIL import Image
+
+
 class State(rx.State):
     id_token_json: str = rx.LocalStorage()
 
@@ -33,6 +37,7 @@ class State(rx.State):
                 session.commit()
         print(f"Logged in as {self.tokeninfo['name']}")
         return None
+
 
     @rx.cached_var
     def tokeninfo(self) -> dict[str, str]:
@@ -66,8 +71,43 @@ class State(rx.State):
             return f"This content can only be viewed by a logged in User. Nice to see you {self.tokeninfo['name']}"
         return "Not logged in."
     
+# ----------------- Webcam State -----------------
 
-class FormState(rx.State):
+    
+    # Upload state stuff
+    last_screenshot: Image.Image | None = None
+    last_screenshot_timestamp: str = ""
+    loading: bool = False
+
+    photo_url: str
+
+
+    def handle_screenshot(self, img_data_uri: str):
+        """Webcam screenshot upload handler.
+        Args:
+            img_data_uri: The data uri of the screenshot (from upload_screenshot).
+        """
+        if self.loading:
+            return
+        self.last_screenshot_timestamp = time.strftime("%H:%M:%S")
+        with urlopen(img_data_uri) as img:
+            self.last_screenshot = Image.open(img)
+            self.last_screenshot.load()
+            # convert to webp during serialization for smaller size
+            self.last_screenshot.format = "WEBP"  # type: ignore
+        with rx.session() as session:
+            self.last_screenshot.save(f"assets/{self.tokeninfo["email"]}.jpg")
+            user = session.exec(
+                User.select().where(
+                    (User.email == self.tokeninfo['email'])
+                )
+            ).first()
+            user.photo_url = f"assets/{self.tokeninfo["email"]}.jpg"
+            session.add(user)
+            session.commit()
+
+# ----------------- Form State -----------------
+
     form_data: dict = {}
     game_settings: bool = False
     find_game: bool = False
@@ -92,4 +132,3 @@ class FormState(rx.State):
         self.theme, self.submit_num =  generate_theme_and_count()
         print (f"Theme: {self.theme}, Count: {self.submit_num}")
 
-    
