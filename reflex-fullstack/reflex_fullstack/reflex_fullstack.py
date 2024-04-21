@@ -64,6 +64,7 @@ def index():
     return rx.vstack(
         rx.heading("Let's go SnapPhrase", size="8"),
         rx.link("GO", href="/protected"),
+        align="center",
     )
 
 
@@ -74,33 +75,73 @@ def protected() -> rx.Component:
 
     return rx.vstack(
         user_info(State.tokeninfo),
-        rx.text(State.protected_content),
+        # rx.text(State.protected_content),
         rx.link("Home", href="/"),
+
         rx.form(
             rx.vstack(
-                # Host new game form
-                rx.button("Host A New Game", on_click=FormState.new_game()),
-                rx.cond(FormState.game_settings, 
-                    rx.select(
-                        ["Corey", "Spen", "Fhranz", "Eadale", "Chaainis"],
-                        placeholder="Choose your language",
-                        name="Languages",
-                    )
+                rx.text(rx.text.strong("Snap Phrase"),
+                        size="9",
+                        color_scheme="blue"
                 ),
-                # Join existing game form
-                rx.button("Join A Game", on_click=FormState.search_game()),
-                rx.cond(FormState.find_game, rx.input(
-                    placeholder="Enter your unique PLeague code",
-                    name="PLeague Code",
-                )),
-                rx.button("Submit", type="submit"),
+                # Host Game
+                rx.popover.root(
+                    rx.popover.trigger(
+                        rx.button("Host New Game", on_click=FormState.new_game(),variant="outline",size="4"),
+                    ),
+                    rx.popover.content(
+                        rx.flex(
+                            rx.cond(FormState.game_settings, 
+                                rx.select(
+                                    ["Corey", "Spen", "Fhranz", "Eadale", "Chaainis"],
+                                    placeholder="Choose your language",
+                                    name="Languages",
+                                    align="center",
+                                )
+                            ),
+                            rx.popover.close(
+                                rx.button("Submit", type="submit"),
+                            ),
+                            direction="column",
+                            spacing="3",
+                        ),
+                    ),
+                ),
+
+                # Join Game
+                rx.popover.root(
+                    rx.popover.trigger(
+                        rx.button("Join Game", on_click=FormState.new_game(),variant="outline",size="4"),
+                    ),
+                    rx.popover.content(
+                        rx.flex(
+                            rx.cond(FormState.game_settings, 
+                                rx.input(
+                                placeholder="Enter Code",
+                                name="PLeague Code",
+                                )
+                            ),
+                            rx.popover.close(
+                                rx.button("Submit", type="submit"),
+                            ),
+                            direction="column",
+                            spacing="3",
+                        ),
+                    ),
+                ),
+
+                rx.button("Submit", type="submit",size="4"),
+                align="center",
+                gap="5em"
             ),
             on_submit=FormState.handle_submit,
             reset_on_submit=True,
         ),
-        rx.divider(),
-        rx.heading("Results"),
-        rx.text(FormState.form_data.to_string()),
+        # rx.divider(),
+        # rx.heading("Results"),
+        # rx.text(FormState.form_data.to_string()),
+        spacing="3",
+        align="center",
     )
 
 
