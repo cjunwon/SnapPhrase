@@ -18,7 +18,7 @@ from .states.baseState import State
 
 import reflex_webcam as webcam
 
-from sqlmodel import Field, SQLModel, create_engine 
+from sqlmodel import Field, Session, SQLModel, create_engine 
 
 # CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
@@ -27,7 +27,6 @@ SQLModel.metadata.create_all(engine)
 
 # Identifies a particular webcam component in the DOM
 WEBCAM_REF = "webcam"
-
 
 def user_info(tokeninfo: dict) -> rx.Component:
     return rx.hstack(
@@ -99,6 +98,8 @@ def protected() -> rx.Component:
                     placeholder="Enter your unique PLeague code",
                     name="PLeague Code",
                 )),
+                rx.button("Submit", type="submit"),
+                rx.button("Generate Theme and Count", on_click=FormState.gen_theme_count()),
                 rx.link(
                     rx.button("Submit", type="submit"),
                 href="/protected/upload")

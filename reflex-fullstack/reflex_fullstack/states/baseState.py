@@ -8,6 +8,9 @@ from db_model import User
 CLIENT_ID = '453147289562-jkgjib093hs0c0r61n6nkgbbp47kgr2m.apps.googleusercontent.com'
 from google.auth.transport import requests
 from google.oauth2.id_token import verify_oauth2_token
+from sqlmodel import Field, SQLModel, create_engine 
+
+from cv_language.gemini_theme_count import generate_theme_and_count
 
 from urllib.request import urlopen
 from PIL import Image
@@ -108,6 +111,8 @@ class State(rx.State):
     form_data: dict = {}
     game_settings: bool = False
     find_game: bool = False
+    submit_num: int = 1
+    theme: str = ""
 
     def handle_submit(self, form_data:dict):
         """Handle the form submit."""
@@ -122,7 +127,8 @@ class State(rx.State):
         self.game_settings = False
         self.find_game = True
         return None
-
     
+    def gen_theme_count(self):
+        self.theme, self.submit_num =  generate_theme_and_count()
+        print (f"Theme: {self.theme}, Count: {self.submit_num}")
 
-# class FormState(rx.State):
