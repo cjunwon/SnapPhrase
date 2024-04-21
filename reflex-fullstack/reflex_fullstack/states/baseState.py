@@ -129,6 +129,6 @@ class State(rx.State):
         return None
     
     def gen_theme_count(self):
-        self.theme, self.submit_num =  generate_theme_and_count()
-        print (f"Theme: {self.theme}, Count: {self.submit_num}")
+        self.theme =  generate_theme_and_count()
+        print (f"Theme: {self.theme}")
 
