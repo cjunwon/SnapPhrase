@@ -4,7 +4,7 @@ import json
 import os
 import time
 import reflex as rx
-from db_model import User
+from db_model import User, Game, League
 CLIENT_ID = '453147289562-jkgjib093hs0c0r61n6nkgbbp47kgr2m.apps.googleusercontent.com'
 from google.auth.transport import requests
 from google.oauth2.id_token import verify_oauth2_token
@@ -96,13 +96,13 @@ class State(rx.State):
             # convert to webp during serialization for smaller size
             self.last_screenshot.format = "WEBP"  # type: ignore
         with rx.session() as session:
-            self.last_screenshot.save(f"assets/{self.tokeninfo["email"]}.jpg")
+            self.last_screenshot.save(f"assets/{self.tokeninfo['email']}.jpg")
             user = session.exec(
                 User.select().where(
                     (User.email == self.tokeninfo['email'])
                 )
             ).first()
-            user.photo_url = f"assets/{self.tokeninfo["email"]}.jpg"
+            user.photo_url = f"assets/{self.tokeninfo['email']}.jpg"
             session.add(user)
             session.commit()
 
@@ -111,8 +111,9 @@ class State(rx.State):
     form_data: dict = {}
     game_settings: bool = False
     find_game: bool = False
-    submit_num: int = 1
     theme: str = ""
+    current_game: Optional[Game] = None
+    current_league: Optional[League] = None
 
     def handle_submit(self, form_data:dict):
         """Handle the form submit."""
@@ -132,3 +133,50 @@ class State(rx.State):
         self.theme =  generate_theme_and_count()
         print (f"Theme: {self.theme}")
 
+    def selected_game(self):
+
+        self.gen_theme_count()
+        self.current_game = Game(
+                        language=self.form_data["Languages"], theme=self.theme
+                    )
+        self.current_league = League(
+                        current_game_id=self.current_game.id
+                    )
+        # Create a new league
+        if self.form_data.keys() == {"Languages"}:
+            print("Hosted game with language: ", self.form_data["Languages"])
+            with rx.session() as session:
+                session.add(
+                    # Make a new game session
+                    self.current_game,
+                    # Make a new league
+                    self.current_league
+                )
+
+                user = session.exec(
+                    User.select().where(
+                        (User.email == self.tokeninfo['email'])
+                    )
+                ).first()
+                user.league_id = self.current_league.id
+                user.game_id = self.current_game.id
+                session.add(user)
+                session.commit()
+
+        # Join an existing league
+        elif self.form_data.keys() == {"PLeague Code"}:
+            print("Joined game with code: ", self.form_data["PLeague Code"])
+            with rx.session() as session:
+                user = session.exec(
+                    User.select().where(
+                        (User.email == self.tokeninfo['email'])
+                        )
+                    ).first()
+                user.league_id = self.form_data["PLeague Code"]
+                session.add(user)
+                session.commit()
+        return None
+
+    
+
+# class FormState(rx.State):

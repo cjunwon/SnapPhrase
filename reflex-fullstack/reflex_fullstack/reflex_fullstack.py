@@ -98,10 +98,9 @@ def protected() -> rx.Component:
                     placeholder="Enter your unique PLeague code",
                     name="PLeague Code",
                 )),
-                rx.button("Submit", type="submit"),
-                rx.button("Generate Theme and Count", on_click=FormState.gen_theme_count()),
+                rx.button("Confirm", type="submit"),
                 rx.link(
-                    rx.button("Submit", type="submit"),
+                    rx.button("Submit",on_click=State.selected_game()),
                 href="/protected/upload")
             ),
             on_submit=State.handle_submit,
