@@ -11,8 +11,6 @@ from google.oauth2.id_token import verify_oauth2_token
 
 class State(rx.State):
     id_token_json: str = rx.LocalStorage()
-    # user: Optional[User] = None
-
 
     def find_user(self, email: str):
         with rx.session() as session:
@@ -65,4 +63,22 @@ class State(rx.State):
             return f"This content can only be viewed by a logged in User. Nice to see you {self.tokeninfo['name']}"
         return "Not logged in."
     
+
+class FormState(rx.State):
+    form_data: dict = {}
+    game_settings: bool = False
+    find_game: bool = False
+
+    def handle_submit(self, form_data:dict):
+        """Handle the form submit."""
+        self.form_data = form_data
+
+    def new_game(self):
+        self.game_settings = True
+        self.find_game = False
+        return None
     
+    def search_game(self):
+        self.game_settings = False
+        self.find_game = True
+        return None

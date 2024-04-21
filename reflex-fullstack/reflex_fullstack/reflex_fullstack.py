@@ -13,7 +13,7 @@ import reflex as rx
 from .react_oauth_google import GoogleOAuthProvider, GoogleLogin
 
 from db_model import *
-from .states.baseState import State
+from .states.baseState import State, FormState
 
 from sqlmodel import Field, SQLModel, create_engine 
 
@@ -62,8 +62,8 @@ def require_google_login(page) -> rx.Component:
 
 def index():
     return rx.vstack(
-        rx.heading("Google OAuth", size="8"),
-        rx.link("Protected Page", href="/protected"),
+        rx.heading("Let's go SnapPhrase", size="8"),
+        rx.link("GO", href="/protected"),
     )
 
 
@@ -76,6 +76,31 @@ def protected() -> rx.Component:
         user_info(State.tokeninfo),
         rx.text(State.protected_content),
         rx.link("Home", href="/"),
+        rx.form(
+            rx.vstack(
+                # Host new game form
+                rx.button("Host A New Game", on_click=FormState.new_game()),
+                rx.cond(FormState.game_settings, 
+                    rx.select(
+                        ["Corey", "Spen", "Fhranz", "Eadale", "Chaainis"],
+                        placeholder="Choose your language",
+                        name="Languages",
+                    )
+                ),
+                # Join existing game form
+                rx.button("Join A Game", on_click=FormState.search_game()),
+                rx.cond(FormState.find_game, rx.input(
+                    placeholder="Enter your unique PLeague code",
+                    name="PLeague Code",
+                )),
+                rx.button("Submit", type="submit"),
+            ),
+            on_submit=FormState.handle_submit,
+            reset_on_submit=True,
+        ),
+        rx.divider(),
+        rx.heading("Results"),
+        rx.text(FormState.form_data.to_string()),
     )
 
 
