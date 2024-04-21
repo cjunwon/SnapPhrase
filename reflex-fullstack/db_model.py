@@ -29,6 +29,7 @@ class Game(rx.Model, table=True):
     """A table of Game."""
 
     # game_id: Optional[int] = Field(primary_key=True)
+    language: str  # Language of the game
     theme: str  # Current theme of the game
     submit_num: str # How many images are required
     game_state: Optional[str] = 0   # Store state of the game

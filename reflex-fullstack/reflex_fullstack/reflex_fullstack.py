@@ -15,13 +15,12 @@ from .react_oauth_google import GoogleOAuthProvider, GoogleLogin
 from db_model import *
 from .states.baseState import State, FormState
 
-from sqlmodel import Field, SQLModel, create_engine 
+from sqlmodel import Field, Session, SQLModel, create_engine 
 
 # CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 
 engine = create_engine("sqlite:///reflex.db", echo=True)
 SQLModel.metadata.create_all(engine)
-
 
 def user_info(tokeninfo: dict) -> rx.Component:
     return rx.hstack(
@@ -94,6 +93,7 @@ def protected() -> rx.Component:
                     name="PLeague Code",
                 )),
                 rx.button("Submit", type="submit"),
+                rx.button("Generate Theme and Count", on_click=FormState.gen_theme_count()),
             ),
             on_submit=FormState.handle_submit,
             reset_on_submit=True,
