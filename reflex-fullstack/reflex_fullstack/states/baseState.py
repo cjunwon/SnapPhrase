@@ -133,7 +133,7 @@ class State(rx.State):
         return None
     
     def gen_theme_count(self):
-        self.theme =  generate_theme_and_count()
+        self.theme = generate_theme_and_count()
         print (f"Theme: {self.theme}")
 
     def selected_game(self):

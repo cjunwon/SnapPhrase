@@ -103,6 +103,7 @@ def protected() -> rx.Component:
                     placeholder="Enter your unique Game session code",
                     name="PLeague Code",
                 )),
+
                 rx.button("Confirm", type="submit"),
                 rx.link(
                     rx.button("Submit",on_click=State.selected_game()),
