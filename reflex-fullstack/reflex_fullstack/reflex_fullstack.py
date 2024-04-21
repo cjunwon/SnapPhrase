@@ -76,7 +76,6 @@ def index():
 @rx.page(route="/protected")
 @require_google_login
 def protected() -> rx.Component:
-
     return rx.vstack(
         user_info(State.tokeninfo),
         rx.text(State.protected_content),
@@ -95,7 +94,7 @@ def protected() -> rx.Component:
                 # Join existing game form
                 rx.button("Join A Game", on_click=State.search_game()),
                 rx.cond(State.find_game, rx.input(
-                    placeholder="Enter your unique PLeague code",
+                    placeholder="Enter your unique Game session code",
                     name="PLeague Code",
                 )),
                 rx.button("Confirm", type="submit"),
@@ -153,13 +152,33 @@ def webcam_upload_component(ref: str) -> rx.Component:
 @rx.page(route="/protected/upload")
 @require_google_login
 def upload() -> rx.Component:
-    return rx.fragment(
+    return rx.vstack(
+        rx.fragment(
         rx.center(
             webcam_upload_component(WEBCAM_REF),
             padding_top="3em",
-        ),
+        )),
+        rx.link("Playtime", href="/protected/play"),
+    )
+
+@rx.page(route="/protected/play")
+@require_google_login
+def play() -> rx.Component:
+    return rx.vstack(
+        rx.button("Refresh Gallery", on_click=State.gallery_refresh()),
+
+        rx.grid(
+            rx.foreach(
+                rx.Var.range(State.gallery_size),
+                lambda i: rx.image(src=State.gallery[i], height="30vh"),
+            ),
+            columns="3",
+            spacing="4",
+            width="100%",
+        )
     )
 
 app = rx.App()
 app.add_page(index)
 app.add_page(upload, route="/protected/upload")
+app.add_page(play, route="/protected/play")

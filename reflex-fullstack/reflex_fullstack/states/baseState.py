@@ -9,11 +9,14 @@ CLIENT_ID = '453147289562-jkgjib093hs0c0r61n6nkgbbp47kgr2m.apps.googleuserconten
 from google.auth.transport import requests
 from google.oauth2.id_token import verify_oauth2_token
 from sqlmodel import Field, SQLModel, create_engine 
+from sqlmodel import Session,select,func
 
 from cv_language.gemini_theme_count import generate_theme_and_count
 
 from urllib.request import urlopen
 from PIL import Image
+
+import asyncio
 
 
 class State(rx.State):
@@ -112,8 +115,8 @@ class State(rx.State):
     game_settings: bool = False
     find_game: bool = False
     theme: str = ""
-    current_game: Optional[Game] = None
-    current_league: Optional[League] = None
+    # current_game: Optional[Game] = None
+    # current_league: Optional[League] = None
 
     def handle_submit(self, form_data:dict):
         """Handle the form submit."""
@@ -134,23 +137,30 @@ class State(rx.State):
         print (f"Theme: {self.theme}")
 
     def selected_game(self):
-
-        self.gen_theme_count()
-        self.current_game = Game(
-                        language=self.form_data["Languages"], theme=self.theme
-                    )
-        self.current_league = League(
-                        current_game_id=self.current_game.id
-                    )
+        with rx.session() as session:
+            user = session.exec(
+                User.select().where(
+                    User.email.contains(self.tokeninfo['email'])
+                )
+            ).first()
+        if not user.photo_url:
+            return None
+        # self.gen_theme_count()
         # Create a new league
         if self.form_data.keys() == {"Languages"}:
             print("Hosted game with language: ", self.form_data["Languages"])
             with rx.session() as session:
+                current_game = Game(
+                        language=self.form_data["Languages"], theme=self.theme
+                    )
+                current_league = League(
+                        current_game_id=current_game.id
+                    )
                 session.add(
                     # Make a new game session
-                    self.current_game,
+                    current_game,
                     # Make a new league
-                    self.current_league
+                    current_league
                 )
 
                 user = session.exec(
@@ -158,8 +168,8 @@ class State(rx.State):
                         (User.email == self.tokeninfo['email'])
                     )
                 ).first()
-                user.league_id = self.current_league.id
-                user.game_id = self.current_game.id
+                user.league_id = current_league.id
+                user.game_id = current_game.id
                 session.add(user)
                 session.commit()
 
@@ -172,11 +182,51 @@ class State(rx.State):
                         (User.email == self.tokeninfo['email'])
                         )
                     ).first()
-                user.league_id = self.form_data["PLeague Code"]
+                user.game_id = self.form_data["PLeague Code"]
                 session.add(user)
                 session.commit()
         return None
 
     
+
+
+# ----------------- Refresh Pics State -----------------
+    count: int = 0
+    progress: int = 0
+
+    async def run(self):
+        # Reset the count.
+        self.set_progress(0)
+        yield
+
+        # Count to 10 while showing progress.
+        for i in range(10):
+            # Wait and increment.
+            await asyncio.sleep(0.5)
+            self.count += 1
+            print(f"Count: {self.count}")
+            # Update the progress.
+            self.set_progress(i + 1)
+
+            # Yield to send the update.
+            yield
+        print("Done!")
+    gallery: list[str]
+    gallery_size: int
+    def gallery_refresh(self):
+        # Start the run coroutine.
+        with rx.session() as session:
+            self.gallery_size = session.exec(select(func.count()).where(User.photo_url != None)).one()
+            self.gallery = session.exec(select(User.photo_url).where(User.email != self.tokeninfo['email'])).all()
+            for i in range(len(self.gallery)):
+                self.gallery[i] = self.gallery[i][6:]
+                # print(self.gallery[i])
+            # print(total)
+            # if total >= 3:
+                # return True
+        # return False
+    
+    
+
 
 # class FormState(rx.State):
