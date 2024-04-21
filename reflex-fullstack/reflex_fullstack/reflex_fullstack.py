@@ -69,6 +69,7 @@ def index():
     return rx.vstack(
         rx.heading("Let's go SnapPhrase", size="8"),
         rx.link("GO", href="/protected"),
+        align="center",
     )
 
 
@@ -82,11 +83,16 @@ def protected() -> rx.Component:
         rx.link("Home", href="/"),
         rx.form(
             rx.vstack(
+                rx.text(rx.text.strong("SnapPhrase"),
+                        size="9",
+                        color_scheme="blue"
+                ),
+                rx.image(src="/SnapPhraseLogo.jpeg", height="100px"),
                 # Host new game form
                 rx.button("Host A New Game", on_click=State.new_game()),
                 rx.cond(State.game_settings, 
                     rx.select(
-                        ["Corey", "Spen", "Fhranz", "Eadale", "Chaainis"],
+                        ['Afar', 'Abkhazian', 'Afrikaans', 'Akan', 'Albanian', 'Amharic', 'Arabic', 'Aragonese', 'Armenian', 'Assamese', 'Avaric', 'Avestan', 'Aymara', 'Azerbaijani', 'Bashkir', 'Bambara', 'Basque', 'Belarusian', 'Bengali', 'Bihari languages', 'Bislama', 'Tibetan', 'Bosnian', 'Breton', 'Bulgarian', 'Burmese', 'Catalan; Valencian', 'Czech', 'Chamorro', 'Chechen', 'Chinese', 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic', 'Chuvash', 'Cornish', 'Corsican', 'Cree', 'Welsh', 'Czech', 'Danish', 'German', 'Divehi; Dhivehi; Maldivian', 'Dutch; Flemish', 'Dzongkha', 'Greek, Modern (1453-)', 'English', 'Esperanto', 'Estonian', 'Basque', 'Ewe', 'Faroese', 'Persian', 'Fijian', 'Finnish', 'French', 'Western Frisian', 'Fulah', 'Georgian', 'German', 'Gaelic; Scottish Gaelic', 'Irish', 'Galician', 'Manx', 'Greek, Modern (1453-)', 'Guarani', 'Gujarati', 'Haitian; Haitian Creole', 'Hausa', 'Hebrew', 'Herero', 'Hindi', 'Hiri Motu', 'Croatian', 'Hungarian', 'Armenian', 'Igbo', 'Icelandic', 'Ido', 'Sichuan Yi; Nuosu', 'Inuktitut', 'Interlingue; Occidental', 'Interlingua (International Auxiliary Language Association)', 'Indonesian', 'Inupiaq', 'Icelandic', 'Italian', 'Javanese', 'Japanese', 'Kalaallisut; Greenlandic', 'Kannada', 'Kashmiri', 'Georgian', 'Kanuri', 'Kazakh', 'Central Khmer', 'Kikuyu; Gikuyu', 'Kinyarwanda', 'Kirghiz; Kyrgyz', 'Komi', 'Kongo', 'Korean', 'Kuanyama; Kwanyama', 'Kurdish', 'Lao', 'Latin', 'Latvian', 'Limburgan; Limburger; Limburgish', 'Lingala', 'Lithuanian', 'Luxembourgish; Letzeburgesch', 'Luba-Katanga', 'Ganda', 'Macedonian', 'Marshallese', 'Malayalam', 'Maori', 'Marathi', 'Malay', 'Micmac', 'Macedonian', 'Malagasy', 'Maltese', 'Mongolian', 'Maori', 'Malay', 'Burmese', 'Nauru', 'Navajo; Navaho', 'Ndebele, South; South Ndebele', 'Ndebele, North; North Ndebele', 'Ndonga', 'Nepali', 'Dutch; Flemish', 'Norwegian Nynorsk; Nynorsk, Norwegian', 'Bokmål, Norwegian; Norwegian Bokmål', 'Norwegian', 'Occitan (post 1500)', 'Ojibwa', 'Oriya', 'Oromo', 'Ossetian; Ossetic', 'Panjabi; Punjabi', 'Persian', 'Pali', 'Polish', 'Portuguese', 'Pushto; Pashto', 'Quechua', 'Romansh', 'Romanian; Moldavian; Moldovan', 'Romanian; Moldavian; Moldovan', 'Rundi', 'Russian', 'Sango', 'Sanskrit', 'Sinhala; Sinhalese', 'Slovak', 'Slovak', 'Slovenian', 'Northern Sami', 'Samoan', 'Shona', 'Sindhi', 'Somali', 'Sotho, Southern', 'Spanish; Castilian', 'Albanian', 'Sardinian', 'Serbian', 'Swati', 'Sundanese', 'Swahili', 'Swedish', 'Tahitian', 'Tamil', 'Tatar', 'Telugu', 'Tajik', 'Tagalog', 'Thai', 'Tibetan', 'Tigrinya', 'Tonga (Tonga Islands)', 'Tswana', 'Tsonga', 'Turkmen', 'Turkish', 'Twi', 'Uighur; Uyghur', 'Ukrainian', 'Urdu', 'Uzbek', 'Venda', 'Vietnamese', 'Volapük', 'Welsh', 'Walloon', 'Wolof', 'Xhosa', 'Yiddish', 'Yoruba', 'Zhuang; Chuang', 'Chinese', 'Zulu'],
                         placeholder="Choose your language",
                         name="Languages",
                     )
@@ -100,7 +106,8 @@ def protected() -> rx.Component:
                 rx.button("Confirm", type="submit"),
                 rx.link(
                     rx.button("Submit",on_click=State.selected_game()),
-                href="/protected/upload")
+                href="/protected/upload"),
+                align="center",
             ),
             on_submit=State.handle_submit,
             reset_on_submit=True,
@@ -108,6 +115,7 @@ def protected() -> rx.Component:
         rx.divider(),
         rx.heading("Results"),
         rx.text(State.form_data.to_string()),
+        align="center",
     )
 
 
@@ -126,7 +134,8 @@ def last_screenshot_widget() -> rx.Component:
                 rx.text("Click image to capture.", size="4"),
                 ),
         ),
-        height="270px",
+        height="1000px",
+        align="center",
     )
 
 def webcam_upload_component(ref: str) -> rx.Component:
@@ -145,7 +154,7 @@ def webcam_upload_component(ref: str) -> rx.Component:
             ),
         ),
         last_screenshot_widget(),
-        width="320px",
+        width="1000px",
         align="center",
     )
 
@@ -159,6 +168,7 @@ def upload() -> rx.Component:
             padding_top="3em",
         )),
         rx.link("Playtime", href="/protected/play"),
+        align="center",
     )
 
 @rx.page(route="/protected/play")
@@ -175,7 +185,9 @@ def play() -> rx.Component:
             columns="3",
             spacing="4",
             width="100%",
-        )
+        ),
+
+        align="center",
     )
 
 app = rx.App()
