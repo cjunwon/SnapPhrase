@@ -16,6 +16,8 @@ from cv_language.gemini_theme_count import generate_theme_and_count
 from urllib.request import urlopen
 from PIL import Image
 
+from cv_language.gemini_image_checker import image_checker
+
 import asyncio
 
 
@@ -105,7 +107,10 @@ class State(rx.State):
                     (User.email == self.tokeninfo['email'])
                 )
             ).first()
-            user.photo_url = f"assets/{self.tokeninfo['email']}.jpg"
+            user.photo_url = f"{self.tokeninfo['email']}.jpg"
+            
+
+
             session.add(user)
             session.commit()
 
